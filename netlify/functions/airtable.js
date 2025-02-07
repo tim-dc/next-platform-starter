@@ -1,10 +1,9 @@
-import fetch from "node-fetch";
+import Airtable from "airtable";
 
 export async function handler(event) {
   const ALLOWED_ORIGIN = "https://oval-wrasse-d42r.squarespace.com";
 
   if (event.httpMethod === "OPTIONS") {
-    // Handle CORS preflight request
     return {
       statusCode: 200,
       headers: {
@@ -25,40 +24,40 @@ export async function handler(event) {
   }
 
   const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
-  const BASE_ID = "apprJ5jpBcnV2RMNq";  // Replace with your actual Base ID
-  const TABLE_NAME = "tblAtevczMvwFUQos"; // Replace with your actual Table ID
+  const BASE_ID = "apprJ5jpBcnV2RMNq"; // Your Airtable Base ID
+  const TABLE_NAME = "tblAtevczMvwFUQos"; // Your Airtable Table Name
 
   const { name, email } = JSON.parse(event.body);
 
-  const url = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_NAME}`;
+  // Initialize Airtable SDK
+  const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(BASE_ID);
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${AIRTABLE_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      records: [
-        {
-          fields: {
-            "fldKytC009uZQrBZ1": name,  // Replace with the actual field ID for Name
-            "fldXyz1234567890": email,  // Replace with the actual field ID for Email
-          },
-        },
-      ],
-    }),
-  });
+  try {
+    // Create a new record in Airtable
+    const record = await base(TABLE_NAME).create({
+      "Full Name": name,  // Replace with your actual field names
+      "Email Address": email,  // Replace with your actual field names
+    });
 
-  const data = await response.json();
-
-  return {
-    statusCode: 200,
-    headers: {
-      "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
-    },
-    body: JSON.stringify({ success: true, message: "Form submitted!", data }),
-  };
+    return {
+      statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+      },
+      body: JSON.stringify({ success: true, message: "Form submitted!", record }),
+    };
+  } catch (error) {
+    console.error("Error creating record:", error);
+    return {
+      statusCode: 500,
+      headers: {
+        "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+      },
+      body: JSON.stringify({ success: false, message: "Internal Server Error", error: error.message }),
+    };
+  }
 }
