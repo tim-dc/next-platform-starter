@@ -22,7 +22,7 @@ exports.handler = async (event) => {
     body: JSON.stringify({
       records: [
         {
-          fields: { Name: name, Email: email },
+          fields: { "Owner's Full Name": name, "fld9464ZaA4Si0a85": email },
         },
       ],
     }),
