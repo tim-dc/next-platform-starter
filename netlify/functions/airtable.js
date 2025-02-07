@@ -1,12 +1,14 @@
 import fetch from "node-fetch";
 
 export async function handler(event) {
+  const ALLOWED_ORIGIN = "https://oval-wrasse-d42r.squarespace.com";
+
   if (event.httpMethod === "OPTIONS") {
     // Handle CORS preflight request
     return {
       statusCode: 200,
       headers: {
-        "Access-Control-Allow-Origin": "https://oval-wrasse-d42r.squarespace.com",
+        "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
         "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type",
       },
@@ -17,7 +19,7 @@ export async function handler(event) {
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
-      headers: { "Access-Control-Allow-Origin": "https://oval-wrasse-d42r.squarespace.com" },
+      headers: { "Access-Control-Allow-Origin": ALLOWED_ORIGIN },
       body: "Method Not Allowed"
     };
   }
@@ -53,7 +55,7 @@ export async function handler(event) {
   return {
     statusCode: 200,
     headers: {
-      "Access-Control-Allow-Origin": "https://oval-wrasse-d42r.squarespace.com",
+      "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
       "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
     },
