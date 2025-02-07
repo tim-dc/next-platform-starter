@@ -1,4 +1,4 @@
-import Airtable from "airtable";
+const Airtable = require('airtable');  // Use require() for CommonJS
 
 export async function handler(event) {
   const ALLOWED_ORIGIN = "https://oval-wrasse-d42r.squarespace.com";
@@ -7,7 +7,7 @@ export async function handler(event) {
     return {
       statusCode: 200,
       headers: {
-        "Access-Control-Allow-Origin": "*",  // Allow all origins temporarily for debugging
+        "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
         "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type",
       },
@@ -18,39 +18,34 @@ export async function handler(event) {
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
-      headers: { 
-        "Access-Control-Allow-Origin": "*",  // Allow all origins temporarily for debugging
- },
+      headers: { "Access-Control-Allow-Origin": ALLOWED_ORIGIN },
       body: "Method Not Allowed"
     };
   }
 
   const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
-  const BASE_ID = "apprJ5jpBcnV2RMNq"; // Your Airtable Base ID
-  const TABLE_NAME = "tblAtevczMvwFUQos"; // Your Airtable Table Name
+  const BASE_ID = "apprJ5jpBcnV2RMNq";
+  const TABLE_NAME = "tblAtevczMvwFUQos";
 
   const { name, email } = JSON.parse(event.body);
 
-  // Initialize Airtable SDK
   const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(BASE_ID);
-
 
   console.log("key ", AIRTABLE_API_KEY);
   console.log("name ", name);
   console.log("email ", email);
   console.log("base ", base);
-
+  
   try {
-    // Create a new record in Airtable
     const record = await base(TABLE_NAME).create({
-      "fldKytC009uZQrBZ1": name,  // Replace with your actual field names
-      "fld9464ZaA4Si0a85": email,  // Replace with your actual field names
+      "Full Name": name,
+      "Email Address": email,
     });
 
     return {
       statusCode: 200,
       headers: {
-        "Access-Control-Allow-Origin": "*",  // Allow all origins temporarily for debugging
+        "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
         "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type",
       },
@@ -61,7 +56,7 @@ export async function handler(event) {
     return {
       statusCode: 500,
       headers: {
-        "Access-Control-Allow-Origin": "*",  // Allow all origins temporarily for debugging
+        "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
         "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type",
       },
