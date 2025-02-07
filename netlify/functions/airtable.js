@@ -7,7 +7,7 @@ export async function handler(event) {
     return {
       statusCode: 200,
       headers: {
-        "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+        "Access-Control-Allow-Origin": "*",  // Allow all origins temporarily for debugging
         "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type",
       },
@@ -18,7 +18,9 @@ export async function handler(event) {
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
-      headers: { "Access-Control-Allow-Origin": ALLOWED_ORIGIN },
+      headers: { 
+        "Access-Control-Allow-Origin": "*",  // Allow all origins temporarily for debugging
+ },
       body: "Method Not Allowed"
     };
   }
@@ -32,17 +34,23 @@ export async function handler(event) {
   // Initialize Airtable SDK
   const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(BASE_ID);
 
+
+  console.log("key ", AIRTABLE_API_KEY);
+  console.log("name ", name);
+  console.log("email ", email);
+  console.log("base ", base);
+
   try {
     // Create a new record in Airtable
     const record = await base(TABLE_NAME).create({
-      "Full Name": name,  // Replace with your actual field names
-      "Email Address": email,  // Replace with your actual field names
+      "fldKytC009uZQrBZ1": name,  // Replace with your actual field names
+      "fld9464ZaA4Si0a85": email,  // Replace with your actual field names
     });
 
     return {
       statusCode: 200,
       headers: {
-        "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+        "Access-Control-Allow-Origin": "*",  // Allow all origins temporarily for debugging
         "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type",
       },
@@ -53,7 +61,7 @@ export async function handler(event) {
     return {
       statusCode: 500,
       headers: {
-        "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+        "Access-Control-Allow-Origin": "*",  // Allow all origins temporarily for debugging
         "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type",
       },
