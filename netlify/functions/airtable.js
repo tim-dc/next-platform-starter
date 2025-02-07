@@ -1,13 +1,13 @@
-const fetch = require("node-fetch");
+import fetch from "node-fetch";
 
-exports.handler = async (event) => {
+export async function handler(event) {
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: "Method Not Allowed" };
   }
 
   const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
-  const BASE_ID = "apprJ5jpBcnV2RMNq";
-  const TABLE_NAME = "tblAtevczMvwFUQos";
+  const BASE_ID = "apprJ5jpBcnV2RMNq"; // Your Airtable Base ID
+  const TABLE_NAME = "tblAtevczMvwFUQos"; // Your Airtable Table ID
 
   const { name, email } = JSON.parse(event.body);
 
@@ -22,7 +22,7 @@ exports.handler = async (event) => {
     body: JSON.stringify({
       records: [
         {
-          fields: { "Owner's Full Name": name, "fld9464ZaA4Si0a85": email },
+            fields: { "Owner's Full Name": name, "fld9464ZaA4Si0a85": email },
         },
       ],
     }),
@@ -34,4 +34,4 @@ exports.handler = async (event) => {
     statusCode: 200,
     body: JSON.stringify({ success: true, message: "Form submitted!", data }),
   };
-};
+}
