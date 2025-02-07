@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     const { name, email } = req.body;
   
     try {
-      const response = await fetch("https://api.airtable.com/v0/YOUR_BASE_ID/YOUR_TABLE", {
+      const response = await fetch("https://api.airtable.com/v0/apprJ5jpBcnV2RMNq/tblAtevczMvwFUQos", {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${process.env.AIRTABLE_API_KEY}`,
