@@ -36,6 +36,13 @@ exports.handler = async (event) => {
 
     // Parse form data from Squarespace
     const { name, email } = JSON.parse(event.body);
+
+    console.log("name ", name);
+    console.log("email ", email);
+    console.log("AIRTABLE_API_KEY ", AIRTABLE_API_KEY);
+    console.log("BASE_ID ", BASE_ID);
+    console.log("TABLE_NAME ", TABLE_NAME);
+
     if (!name || !email) {
       return {
         statusCode: 400,
@@ -47,15 +54,19 @@ exports.handler = async (event) => {
     // Initialize Airtable
     const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(BASE_ID);
 
+    console.log("base ", base);
+
     // Create record in Airtable
     const record = await base(TABLE_NAME).create([
       {
         fields: {
-          "Full Name": name,
-          "Email Address": email,
+            "fldKytC009uZQrBZ1": "Timothy Test",
+            "fld9464ZaA4Si0a85": "timothy@fca.land"
         },
       },
     ]);
+
+    console.log("record ", record);
 
     return {
       statusCode: 200,
