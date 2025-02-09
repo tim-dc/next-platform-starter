@@ -3,8 +3,17 @@ const Airtable = require("airtable");
 exports.handler = async (event) => {
   const ALLOWED_ORIGIN = "https://coral-burgundy-grj3.squarespace.com";
 
-  const userIP = event.headers["x-forwarded-for"] || event.headers["client-ip"] || "Unknown IP";
+  // Get IP Address from request headers (IPv4 filtering)
+  let userIP = event.headers["x-forwarded-for"] || event.headers["client-ip"] || "Unknown IP";
+  
+  // If multiple IPs exist (comma-separated), take the first one (usually IPv4)
+  userIP = userIP.split(",")[0].trim();
 
+  // If the IP contains an IPv6 format (::ffff:192.168.1.1), extract IPv4
+  if (userIP.includes("::ffff:")) {
+    userIP = userIP.split("::ffff:")[1];  // Extract actual IPv4
+  }
+  
   // Handle CORS for preflight requests
   if (event.httpMethod === "OPTIONS") {
     return {
