@@ -1,19 +1,9 @@
 const Airtable = require("airtable");
+const axios = require("axios");
 
 exports.handler = async (event) => {
   const ALLOWED_ORIGIN = "https://coral-burgundy-grj3.squarespace.com";
 
-  // Get IP Address from request headers (IPv4 filtering)
-  let userIP = event.headers["x-forwarded-for"] || event.headers["client-ip"] || "Unknown IP";
-  
-  // If multiple IPs exist (comma-separated), take the first one (usually IPv4)
-  userIP = userIP.split(",")[0].trim();
-
-  // If the IP contains an IPv6 format (::ffff:192.168.1.1), extract IPv4
-  if (userIP.includes("::ffff:")) {
-    userIP = userIP.split("::ffff:")[1];  // Extract actual IPv4
-  }
-  
   // Handle CORS for preflight requests
   if (event.httpMethod === "OPTIONS") {
     return {
@@ -40,19 +30,14 @@ exports.handler = async (event) => {
     const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
     const BASE_ID = "apprJ5jpBcnV2RMNq";
     const TABLE_NAME = "tblAtevczMvwFUQos";
+    const IPINFO_API_KEY = process.env.IPINFO_API_KEY; // Set this in Netlify environment variables
 
-    if (!AIRTABLE_API_KEY) {
-      throw new Error("Missing Airtable API key.");
+    if (!AIRTABLE_API_KEY || !IPINFO_API_KEY) {
+      throw new Error("Missing required API keys.");
     }
 
     // Parse form data from Squarespace
     const { name, email } = JSON.parse(event.body);
-
-    console.log("name ", name);
-    console.log("email ", email);
-    console.log("AIRTABLE_API_KEY ", AIRTABLE_API_KEY);
-    console.log("BASE_ID ", BASE_ID);
-    console.log("TABLE_NAME ", TABLE_NAME);
 
     if (!name || !email) {
       return {
@@ -62,23 +47,37 @@ exports.handler = async (event) => {
       };
     }
 
+    // Get IP Address from request headers (IPv4 filtering)
+    let rawIP = event.headers["x-forwarded-for"] || event.headers["client-ip"] || "Unknown IP";
+    rawIP = rawIP.split(",")[0].trim(); // Get first IP in case of multiple
+
+    if (rawIP.includes("::ffff:")) {
+      rawIP = rawIP.split("::ffff:")[1]; // Extract actual IPv4 if in IPv6 format
+    }
+
+    // Fetch geolocation data from ipinfo.io
+    let userIP = `${rawIP} (No location data)`;
+    try {
+      const geoResponse = await axios.get(`https://ipinfo.io/${rawIP}/json?token=${IPINFO_API_KEY}`);
+      const geoData = geoResponse.data;
+      userIP = `${geoData.ip} - ${geoData.city}, ${geoData.region}, ${geoData.country} (ISP: ${geoData.org})`;
+    } catch (error) {
+      console.error("Error fetching geolocation data:", error.message);
+    }
+
     // Initialize Airtable
     const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(BASE_ID);
-
-    console.log("base ", base);
 
     // Create record in Airtable
     const record = await base(TABLE_NAME).create([
       {
         fields: {
-            "fldKytC009uZQrBZ1": "Timothy Test",
-            "fld9464ZaA4Si0a85": "timothy@fca.land",
-            "fldXaPAnPCdkgeErr": userIP
+          "fldKytC009uZQrBZ1": name,      // Name field
+          "fld9464ZaA4Si0a85": email,     // Email field
+          "fldXaPAnPCdkgeErr": userIP     // User IP (Formatted with location)
         },
       },
     ]);
-
-    console.log("record ", record);
 
     return {
       statusCode: 200,
