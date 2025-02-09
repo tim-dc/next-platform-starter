@@ -1,4 +1,4 @@
-const Airtable = require('airtable');  // Use require() for CommonJS
+const Airtable = require('airtable').default;  // Add .default
 
 export async function handler(event) {
   const ALLOWED_ORIGIN = "https://oval-wrasse-d42r.squarespace.com";
@@ -35,7 +35,7 @@ export async function handler(event) {
   console.log("name ", name);
   console.log("email ", email);
   console.log("base ", base);
-  
+
   try {
     const record = await base(TABLE_NAME).create({
       "Full Name": name,
