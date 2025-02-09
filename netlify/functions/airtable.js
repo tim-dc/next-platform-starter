@@ -3,6 +3,8 @@ const Airtable = require("airtable");
 exports.handler = async (event) => {
   const ALLOWED_ORIGIN = "https://coral-burgundy-grj3.squarespace.com";
 
+  const userIP = event.headers["x-forwarded-for"] || event.headers["client-ip"] || "Unknown IP";
+
   // Handle CORS for preflight requests
   if (event.httpMethod === "OPTIONS") {
     return {
@@ -61,7 +63,8 @@ exports.handler = async (event) => {
       {
         fields: {
             "fldKytC009uZQrBZ1": "Timothy Test",
-            "fld9464ZaA4Si0a85": "timothy@fca.land"
+            "fld9464ZaA4Si0a85": "timothy@fca.land",
+            "fldXaPAnPCdkgeErr": userIP
         },
       },
     ]);
