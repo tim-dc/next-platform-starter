@@ -1,7 +1,7 @@
 const Airtable = require("airtable");
 
 exports.handler = async (event) => {
-  const ALLOWED_ORIGIN = "https://YOUR-SQUARESPACE-DOMAIN.com";
+  const ALLOWED_ORIGIN = "https://coral-burgundy-grj3.squarespace.com";
 
   // Handle CORS for preflight requests
   if (event.httpMethod === "OPTIONS") {
