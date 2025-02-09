@@ -1,8 +1,9 @@
-const Airtable = require('airtable'); // No .default needed
+const Airtable = require("airtable");
 
-export async function handler(event) {
-  const ALLOWED_ORIGIN = "https://coral-burgundy-grj3.squarespace.com";
+exports.handler = async (event) => {
+  const ALLOWED_ORIGIN = "https://YOUR-SQUARESPACE-DOMAIN.com";
 
+  // Handle CORS for preflight requests
   if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 200,
@@ -15,36 +16,45 @@ export async function handler(event) {
     };
   }
 
+  // Reject non-POST requests
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
       headers: { "Access-Control-Allow-Origin": ALLOWED_ORIGIN },
-      body: "Method Not Allowed"
+      body: "Method Not Allowed",
     };
   }
 
-  const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
-  const BASE_ID = "apprJ5jpBcnV2RMNq";
-  const TABLE_NAME = "tblAtevczMvwFUQos";
-
-  const { name, email } = JSON.parse(event.body);
-
-  // ✅ Correct Airtable Initialization
-  const base = new Airtable.base(BASE_ID); // Fix this line
-
-  console.log("key ", AIRTABLE_API_KEY);
-  console.log("name ", name);
-  console.log("email ", email);
-  console.log("base ", base);
-
   try {
+    const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
+    const BASE_ID = "apprJ5jpBcnV2RMNq";
+    const TABLE_NAME = "tblAtevczMvwFUQos";
+
+    if (!AIRTABLE_API_KEY) {
+      throw new Error("Missing Airtable API key.");
+    }
+
+    // Parse form data from Squarespace
+    const { name, email } = JSON.parse(event.body);
+    if (!name || !email) {
+      return {
+        statusCode: 400,
+        headers: { "Access-Control-Allow-Origin": ALLOWED_ORIGIN },
+        body: JSON.stringify({ success: false, message: "Missing required fields." }),
+      };
+    }
+
+    // Initialize Airtable
+    const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(BASE_ID);
+
+    // Create record in Airtable
     const record = await base(TABLE_NAME).create([
       {
         fields: {
           "Full Name": name,
           "Email Address": email,
-        }
-      }
+        },
+      },
     ]);
 
     return {
@@ -57,7 +67,8 @@ export async function handler(event) {
       body: JSON.stringify({ success: true, message: "Form submitted!", record }),
     };
   } catch (error) {
-    console.error("Error creating record:", error);
+    console.error("Airtable API Error:", error);
+
     return {
       statusCode: 500,
       headers: {
@@ -68,4 +79,4 @@ export async function handler(event) {
       body: JSON.stringify({ success: false, message: "Internal Server Error", error: error.message }),
     };
   }
-}
+};
