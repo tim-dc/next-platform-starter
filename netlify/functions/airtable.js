@@ -1,4 +1,4 @@
-const Airtable = require('airtable'); // ✅ Fix import
+const Airtable = require('airtable'); // No .default needed
 
 export async function handler(event) {
   const ALLOWED_ORIGIN = "https://coral-burgundy-grj3.squarespace.com";
@@ -30,7 +30,7 @@ export async function handler(event) {
   const { name, email } = JSON.parse(event.body);
 
   // ✅ Correct Airtable Initialization
-  const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(BASE_ID);
+  const base = new Airtable.base(BASE_ID); // Fix this line
 
   console.log("key ", AIRTABLE_API_KEY);
   console.log("name ", name);
