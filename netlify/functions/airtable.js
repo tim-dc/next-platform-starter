@@ -1,7 +1,7 @@
 const Airtable = require('airtable').default;  // Add .default
 
 export async function handler(event) {
-  const ALLOWED_ORIGIN = "https://oval-wrasse-d42r.squarespace.com";
+  const ALLOWED_ORIGIN = "https://coral-burgundy-grj3.squarespace.com";
 
   if (event.httpMethod === "OPTIONS") {
     return {
